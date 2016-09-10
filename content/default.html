@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Newz Home</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script>
+            console.log("script loaded");
+            
+            window.onload = function()
+            {
+                console.log("test");
+            };
+            
+            function RegisterRequest()
+            {
+                var username = document.getElementById("#username").value;
+                var password = document.getElementById("#password").value;
+            }
+        
+            function navClick(page)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementsByClassName("content")[0].innerHTML = this.responseText;
+                    }
+                };
+                
+                xhttp.open("GET", page, true);
+                xhttp.send();
+            }
+            
+        </script>
+        <style>
+            * { padding:0; margin:0; }
+            
+            body {
+                height:100%;
+                width:100%;
+                overflow:hidden;
+                background-color:#222222;
+                color:#FFFFFF;
+            }
+            
+            .header {
+                width:100%;
+                height:10%;
+                background-color:#440000;
+            }
+            
+            .content {
+                top:15%;
+                position:absolute;
+                margin-left:2.5%;
+                margin-right:2.5%;
+                height:70%;
+                width:95%;
+                background-color:#440000;
+            }
+            
+            .footer {
+                position:absolute;
+                bottom:0%;
+                width:100%;
+                height:10%;
+                background-color:#440000;
+                text-align:center;
+            }
+                
+            .copyright {
+                background-color:#002200;
+            }
+            
+            
+            
+            .title {
+                font-size:30px;
+                text-align:center;
+            }
+            
+            .nav {
+                position:absolute;
+                text-align:center;
+                background-color:#555555;
+                width:100%;
+                height:5%;
+            }
+            
+            .button {
+                position:relative;
+                float:left;
+                max-width:10%;
+                width:5%;
+                height:100%;
+                padding:2px;
+                color:#FFFFFF;
+                background-color:#777777;
+                color:#000000;
+                font-weight:800;
+                padding: 0;
+                margin: 0;
+                border: 0;
+            }
+            
+            .button_line {
+                padding:0;
+                margin:0;
+                background-color:#0000FF;
+                bottom:0%;
+                border: 0;
+            }
+            
+        </style>
+    </head>
+    
+    <body>
+        <div class="header" id="#header-div">
+            <div class="title">Newz Exchange</div>
+            <div class="nav" >
+                <table onclick="navClick('homecontent');" class="button">
+                    <tr>
+                        <td valign="top">
+                            Home
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="button_line" style="background-color:#770000;" valign="bottom">
+                        </td>
+                    </tr>
+                </table>
+                <table onclick="navClick('allnewscontent');" class="button">
+                    <tr>
+                        <td valign="top">
+                            All News
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="button_line" style="background-color:#000088;" valign="bottom">
+                        </td>
+                    </tr>
+                </table>
+                <table onclick="navClick('registercontent');" class="button">
+                    <tr>
+                        <td valign="top">
+                            Register
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="button_line" style="background-color:#00BB00;" valign="bottom">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="content">
+            content
+        </div>
+        
+        <div class="footer">
+            <div class="copyright">Newz Website Copyright Owen Bones 2016 - 2016</div>
+        </div>
+    </body>
+</html>
