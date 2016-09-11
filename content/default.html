@@ -10,20 +10,96 @@
             
             window.onload = function()
             {
-                console.log("test");
+                
             };
+            
+            function setCookie(cname, cvalue, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                var expires = "expires="+d.toUTCString();
+                document.cookie = cname + "=" + cvalue + "; " + expires;
+            }
+
+            function getCookie(cname) {
+                var name = cname + "=";
+                var ca = document.cookie.split(';');
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) === 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+            
+            function LoginReuqest(username, password, callback)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        callback(true);
+                    }
+                    else
+                    {
+                        callback(false);
+                    }
+                };
+                
+                xhttp.open("POST", "RegisterRequest", true);
+                xhttp.send("username=" + username + "&password=" + password);    
+            }
             
             function RegisterRequest()
             {
                 var username = document.getElementById("#username").value;
                 var password = document.getElementById("#password").value;
+                
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        document.getElementsByClassName("content")[0].innerHTML = this.responseText;
+                    }
+                };
+                
+                xhttp.open("POST", "RegisterRequest", true);
+                xhttp.send("username=" + username + "&password=" + password);
+            }
+            function LoginRequest()
+            {
+                var username = document.getElementById("#username").value;
+                var password = document.getElementById("#password").value;
+                
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        var responsejson = JSON.parse(this.responseText);
+                        console.log(responsejson);
+                        if(responsejson.login === true)
+                        {
+                            document.getElementsByClassName("nav-buttons")[0].children[4].style.display = "none";
+                            document.getElementsByClassName("nav-buttons")[0].children[5].style.display = "none";
+                            document.getElementsByClassName("nav-buttons")[0].children[6].style.display = "block";
+                            document.getElementsByClassName("nav-buttons")[0].children[6].children[0].innerHTML = responsejson.username;
+                        }
+                        else
+                        {
+                            document.getElementsByClassName("content")[0].innerHTML = "login failed";
+                        }
+                    }
+                };
+                
+                xhttp.open("POST", "LoginRequest", true);
+                xhttp.send("username=" + username + "&password=" + password);
             }
         
             function navClick(page)
             {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
+                    if (this.readyState === 4 && this.status === 200) {
                         document.getElementsByClassName("content")[0].innerHTML = this.responseText;
                     }
                 };
@@ -40,14 +116,13 @@
                 height:100%;
                 width:100%;
                 overflow:hidden;
-                background-color:#222222;
+                background-color:#EEEEEE;
                 color:#FFFFFF;
             }
             
             .header {
                 width:100%;
                 height:10%;
-                background-color:#440000;
             }
             
             .content {
@@ -57,36 +132,49 @@
                 margin-right:2.5%;
                 height:70%;
                 width:95%;
-                background-color:#440000;
+                background-color:#111111;
             }
             
             .footer {
                 position:absolute;
                 bottom:0%;
                 width:100%;
-                height:10%;
-                background-color:#440000;
+                height:5%;
+                background-color:#111111;
                 text-align:center;
             }
                 
             .copyright {
-                background-color:#002200;
-            }
-            
-            
-            
-            .title {
-                font-size:30px;
-                text-align:center;
+                font-size: 1vw;
+                background-color:#111111;
             }
             
             .nav {
                 position:absolute;
                 text-align:center;
-                background-color:#555555;
+                background-color:#111111;
                 width:100%;
                 height:5%;
+                -webkit-box-shadow: 0px 1px 61px 0px rgba(0,0,0,0.75);
+                -moz-box-shadow: 0px 1px 61px 0px rgba(0,0,0,0.75);
+                box-shadow: 0px 1px 61px 0px rgba(0,0,0,0.75);
             }
+            
+            ul
+            {
+                list-style-type: none;
+            }
+            
+            .title {
+                position:relative;
+                float:left;
+                font-size:30px;
+                font-size: 1vw;
+                padding-left:1%;
+                padding-top:0.5%;
+                margin-right:10%;
+            }
+            
             
             .button {
                 position:relative;
@@ -96,62 +184,75 @@
                 height:100%;
                 padding:2px;
                 color:#FFFFFF;
-                background-color:#777777;
-                color:#000000;
+                background-color:#111111;
                 font-weight:800;
                 padding: 0;
                 margin: 0;
                 border: 0;
+                border:1px solid;
+                border-bottom:0;
             }
             
-            .button_line {
+            .button-text {
+                font-size: 1vw;
+            }
+            
+            .button-line {
                 padding:0;
                 margin:0;
+                margin-top:25%;
+                padding-bottom: 5%;
                 background-color:#0000FF;
                 bottom:0%;
                 border: 0;
             }
+            
+            .button:hover {
+                background-color:#FFFFFF;
+                color:#000000;
+            }
+            
+            .button:hover .button-line{
+                margin-top:20%;
+                padding-bottom: 7%;
+            }
+            
             
         </style>
     </head>
     
     <body>
         <div class="header" id="#header-div">
-            <div class="title">Newz Exchange</div>
             <div class="nav" >
-                <table onclick="navClick('homecontent');" class="button">
-                    <tr>
-                        <td valign="top">
-                            Home
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="button_line" style="background-color:#770000;" valign="bottom">
-                        </td>
-                    </tr>
-                </table>
-                <table onclick="navClick('allnewscontent');" class="button">
-                    <tr>
-                        <td valign="top">
-                            All News
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="button_line" style="background-color:#000088;" valign="bottom">
-                        </td>
-                    </tr>
-                </table>
-                <table onclick="navClick('registercontent');" class="button">
-                    <tr>
-                        <td valign="top">
-                            Register
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="button_line" style="background-color:#00BB00;" valign="bottom">
-                        </td>
-                    </tr>
-                </table>
+                <ul class="nav-buttons">
+                    <li class="title">
+                        NewzExchange
+                    </li>
+                    <li onclick="navClick('homecontent');" class="button">
+                        <div class="button-text">Home</div>
+                        <div class="button-line" style="background-color:#770000;"></div>
+                    </li>
+                    <li onclick="navClick('allnewscontent');" class="button">
+                        <div class="button-text">All News</div>
+                        <div class="button-line" style="background-color:#000088;"></div>
+                    </li>
+                    <li onclick="navClick('allnewscontent');" class="button">
+                        <div class="button-text">All News</div>
+                        <div class="button-line" style="background-color:#000088;"></div>
+                    </li>
+                    <li onclick="navClick('registercontent');" class="button" style="float:right;">
+                        <div class="button-text">Register</div>
+                        <div class="button-line" style="background-color:#00BB00;"></div>
+                    </li>
+                    <li onclick="navClick('signincontent');" class="button" style="float:right;">
+                        <div class="button-text">Sign In</div>
+                        <div class="button-line" style="background-color:#550055;"></div>
+                    </li>
+                    <li onclick="navClick('userpagecontent');" class="button" style="float:right;display:none;">
+                        <div class="button-text">Username</div>
+                        <div class="button-line" style="background-color:#FFFF00;"></div>
+                    </li>
+                </ul>
             </div>
         </div>
         
