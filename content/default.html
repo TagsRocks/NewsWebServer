@@ -1,16 +1,69 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Newz Home</title>
+        <title>News Exchange</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <script>
             console.log("script loaded");
             
+            var LocalUser = (function()
+            {
+                    function LocalUser(username, password, sessionid)
+                    {
+                        this.m_Username = username;
+                        this.m_Password = password;
+                        this.m_SessionID = sessionid;
+                        
+                        setCookie("session", this.m_SessionID, 1);
+                        console.info(this.m_SessionID);
+                    };
+
+                    return LocalUser;
+            })();
+
+            LocalUser.prototype.onSelect = function(character)
+            {
+                    console.log(character);
+                    console.log("char controller onselect");
+            };
+
+            var global_LocalUser;
+            
             window.onload = function()
             {
-                
+                var cookie = getCookie("session");
+                console.log("untested cookie: " + cookie);
+                if(cookie && cookie.length > 0)
+                {
+                    CookieLoginRequest(cookie, function(success, responseText)
+                    {
+                        if(success === true)
+                        {
+                            console.log(responseText);
+                            var responsejson = JSON.parse(responseText);
+                            if(responsejson.login === true)
+                            {
+                                document.getElementsByClassName("nav-buttons")[0].children[4].style.display = "none";
+                                document.getElementsByClassName("nav-buttons")[0].children[5].style.display = "none";
+                                document.getElementsByClassName("nav-buttons")[0].children[6].style.display = "block";
+                                document.getElementsByClassName("nav-buttons")[0].children[6].children[0].innerHTML = responsejson.username;
+
+                                global_LocalUser = new LocalUser(responsejson.username, responsejson.password, responsejson.session.sessionID);
+                            }
+                            else
+                            {
+                                document.getElementsByClassName("content")[0].innerHTML = "login failed";
+                                console.log("failed cookie");
+                            }   
+                        }
+                    });
+                }
+                else
+                {
+                    console.error("no cookie");
+                }
             };
             
             function setCookie(cname, cvalue, exdays) {
@@ -35,21 +88,21 @@
                 return "";
             }
             
-            function LoginReuqest(username, password, callback)
+            function CookieLoginRequest(session, callback)
             {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
                     if (this.readyState === 4 && this.status === 200) {
-                        callback(true);
+                        callback(true, this.responseText);
                     }
                     else
                     {
-                        callback(false);
+                        callback(false, this.responseText);
                     }
                 };
                 
-                xhttp.open("POST", "RegisterRequest", true);
-                xhttp.send("username=" + username + "&password=" + password);    
+                xhttp.open("POST", "CookieLoginRequest", true);
+                xhttp.send("cookie=" + session);    
             }
             
             function RegisterRequest()
@@ -75,14 +128,16 @@
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
                     if (this.readyState === 4 && this.status === 200) {
+                        console.log(this.responseText);
                         var responsejson = JSON.parse(this.responseText);
-                        console.log(responsejson);
                         if(responsejson.login === true)
                         {
                             document.getElementsByClassName("nav-buttons")[0].children[4].style.display = "none";
                             document.getElementsByClassName("nav-buttons")[0].children[5].style.display = "none";
                             document.getElementsByClassName("nav-buttons")[0].children[6].style.display = "block";
                             document.getElementsByClassName("nav-buttons")[0].children[6].children[0].innerHTML = responsejson.username;
+                            
+                            global_LocalUser = new LocalUser(responsejson.username, password, responsejson.session.sessionID);
                         }
                         else
                         {
@@ -226,7 +281,7 @@
             <div class="nav" >
                 <ul class="nav-buttons">
                     <li class="title">
-                        NewzExchange
+                        News
                     </li>
                     <li onclick="navClick('homecontent');" class="button">
                         <div class="button-text">Home</div>
