@@ -1,7 +1,6 @@
 package newswebserver;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.locks.*;
 import java.time.*;
 
@@ -115,7 +114,14 @@ class User
         this.m_Username = user;
         this.m_Password = pass;
         
+        this.m_Subscriptions = new ArrayList<String>();
+        
         this.m_CurrentSession = Session.getNewSession();
+    }
+    
+    public void subscribeTo(String category)
+    {
+        this.m_Subscriptions.add(category);
     }
 }
 
@@ -133,8 +139,135 @@ class NewsItem
     
     public String m_Person;
     public String m_Organisation;
+    public String m_Category;
+    
+    public NewsItem(String uri, String headline, String byline, String body, String person, String org, String cat)
+    {
+        this.m_VersionCreatedDate = LocalDate.now();
+        this.m_VersionCreatedTime = LocalTime.now();
+        
+        this.m_Type = "text";
+        this.m_URI = "/content/news/" + uri;
+        
+        this.m_HeadlineText = headline;
+        this.m_BylineText = byline;
+        this.m_BodyText = body;
+        this.m_Person = person;
+        this.m_Organisation = org;
+        this.m_Category = cat;
+    }
+    
+    public String getItemAsJSONString()
+    {
+        return "\"ninjs_item\" : { \"uri\" : \"" + "31.185.147.189:8000/content/news" + this.m_URI + "\","
+                + "\"type\" : \"" + this.m_Type + "\","
+                + "\"versioncreated\" : \"" + this.m_VersionCreatedDate.toString() + " + " + this.m_VersionCreatedTime.toString() + "\","
+                + "\"byline\" : \"" + this.m_BylineText + "\","
+                + "\"headline\" : \"" + this.m_HeadlineText + "\","
+                + "\"person\" : \"" + this.m_Person + "\","
+                + "\"organisation\" : \"" + this.m_Organisation + "\","
+                + "\"category\" : \"" + this.m_Category + "\","
+                + "\"body_text\" : \"" + this.m_BodyText + "\"}";
+    }
 }
 
+class NewsDatabase
+{
+    private final ReentrantLock lock = new ReentrantLock();
+    public static ArrayList<NewsItem> m_NewsItemList = new ArrayList<NewsItem>();
+    
+    public NewsDatabase()
+    {
+        this.addNewsItem("0", "Cat lost in bath", "Soxville cat owner bewildered as cat lost in bath",
+                    "A 40-year-old mother of two cat owner in soxville has been left distraught"
+                    + "after her 6 year old cat disappeared during what was a routine bath time."
+                    + "<br><br>But where could they have gone? Nobody knows.", 
+                    "John Anderson", "Cat Times", "Local");
+         
+        this.addNewsItem("1", "PM Theresa May bans internet", "From October 1st 2016, the UK's Internet will go dark.",
+                    "As Theresa May dismantles the Human Rights Act, she lays out a series of actions to help further combat terrorism."
+                    + "<br><br>''These are dangerous circumstances, and unpredictables lives we live in,'' She explains,"
+                    + "<br><br>''Never has the UK faced such a level of threat from terrorist organisations, and to combat it we must"
+                    + " ensure that no communications data can travel in or around the United Kingdom.''"
+                    + "<br><br>''Never again will hard working British people feel opressed by ISIS's digital rampage.''"
+                    + "<br><br>We tried to invite some human rights activists to comment, but they have all mysteriously vanished.",
+                    "Umesh Portovsky", "RT", "Politics");
+    }
+    
+    public boolean addNewsItem(String uri, String headline, String byline, String body, String person, String org, String cat)
+    {
+        try
+        {
+            lock.lock();
+            m_NewsItemList.add(new NewsItem(uri, headline, byline, body, person, org, cat));
+            return true;
+        }
+        catch(Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+    
+    public ArrayList<String> getTopTenNews()
+    {
+        try
+        {
+            System.out.println("getTopTenNews();");
+            ArrayList<String> topTen = new ArrayList<String>();
+            int totalNews = 0;
+            
+            lock.lock();
+            for(int i = m_NewsItemList.size()-1; i >= 0; i--)
+            {
+                topTen.add(m_NewsItemList.get(i).getItemAsJSONString());
+                totalNews++;
+                if(totalNews >= 10) { break; }
+            }
+            return topTen;
+        }
+        catch(Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+    
+    public ArrayList<String> getNewsByCategory(String category, int num)
+    {
+        try
+        {
+            ArrayList<String> fromCategory = new ArrayList<String>();
+            int totalNews = 0;
+            
+            lock.lock();
+            for(NewsItem news : this.m_NewsItemList)
+            {
+                if(news.m_Category.equals(category))
+                {
+                    fromCategory.add(news.getItemAsJSONString());
+                    totalNews++;
+                }
+                if(totalNews >= num) { break; }
+            }
+            return fromCategory;
+        }
+        catch(Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+}
 
 public class Database
 {
@@ -147,11 +280,9 @@ public class Database
         {
             lock.lock();
             User user1 = new User("Owen", "Test");
-        
-                user1.m_Subscriptions = new ArrayList<String>();
-                user1.m_Subscriptions.add("Politics");
-                user1.m_Subscriptions.add("Technology");
-                user1.m_Subscriptions.add("Games");     
+            user1.subscribeTo("Politics");
+            user1.subscribeTo("Technology");
+            user1.subscribeTo("Games");     
 
             m_UserList.add(user1);
         }

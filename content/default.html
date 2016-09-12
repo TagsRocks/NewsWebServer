@@ -150,17 +150,123 @@
                 xhttp.send("username=" + username + "&password=" + password);
             }
         
-            function navClick(page)
+            function addTopTenNews(ninjs)
+            {
+                console.log(ninjs);
+                ninjs.ninjs.forEach(function(v,i,a)
+                {
+                    var newsItemHTML    =   "<div class=\"news-item\">";
+                        newsItemHTML    +=      "<div class=\"news-item-headline\">";
+                        newsItemHTML    +=          v.ninjs_item.headline;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=      "<div class=\"news-item-byline\">";
+                        newsItemHTML    +=          v.ninjs_item.byline;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=      "<ul class=\"news-item-metadata\">";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-person\">";
+                        newsItemHTML    +=              v.ninjs_item.person;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-organisation\">";
+                        newsItemHTML    +=              v.ninjs_item.organisation;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-date\">";
+                        newsItemHTML    +=              v.ninjs_item.versioncreated;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=      "</ul>";
+                        newsItemHTML    +=      "</br>";
+                        newsItemHTML    +=      "<div class=\"news-item-body\">";
+                        newsItemHTML    +=          v.ninjs_item.body_text;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=  "</div>";
+                        
+                    document.getElementsByClassName("content")[0].innerHTML += newsItemHTML;
+                });
+            }
+            
+            function addMyNews(ninjs)
+            {
+                console.log(ninjs);
+                ninjs.ninjs.forEach(function(v,i,a)
+                {
+                    var newsItemHTML    =   "<div class=\"news-item\">";
+                        newsItemHTML    +=      "<div class=\"news-item-headline\">";
+                        newsItemHTML    +=          v.ninjs_item.headline;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=      "<div class=\"news-item-byline\">";
+                        newsItemHTML    +=          v.ninjs_item.byline;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=      "<ul class=\"news-item-metadata\">";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-person\">";
+                        newsItemHTML    +=              v.ninjs_item.person;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-organisation\">";
+                        newsItemHTML    +=              v.ninjs_item.organisation;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=          "<li class=\"news-item-metadata-li\"><div class=\"news-item-date\">";
+                        newsItemHTML    +=              v.ninjs_item.versioncreated;
+                        newsItemHTML    +=          "</div></ll>";
+                        newsItemHTML    +=      "</ul>";
+                        newsItemHTML    +=      "</br>";
+                        newsItemHTML    +=      "<div class=\"news-item-body\">";
+                        newsItemHTML    +=          v.ninjs_item.body_text;
+                        newsItemHTML    +=      "</div>";
+                        newsItemHTML    +=  "</div>";
+                        
+                    document.getElementsByClassName("content")[0].innerHTML += newsItemHTML;
+                });
+            }
+            
+            function topTenNewsRequest()
             {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
                     if (this.readyState === 4 && this.status === 200) {
-                        document.getElementsByClassName("content")[0].innerHTML = this.responseText;
+                        addTopTenNews(JSON.parse(this.responseText));
                     }
                 };
-                
-                xhttp.open("GET", page, true);
+
+                xhttp.open("GET", "/content/AllNews", true);
                 xhttp.send();
+            }
+            
+            function navClick(page)
+            {
+                switch(page)
+                {
+                    case "allnewscontent":
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState === 4 && this.status === 200) {
+                                document.getElementsByClassName("content")[0].innerHTML = this.responseText;
+                                topTenNewsRequest();
+                            }
+                        };
+
+                        xhttp.open("GET", page, true);
+                        xhttp.send();
+                    break;
+                case "/content/MyNews":
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState === 4 && this.status === 200) {
+                            addMyNews(JSON.parse(this.responseText));
+                        }
+                    };
+
+                    xhttp.open("POST", "/content/MyNews", true);
+                    xhttp.send("username=" + global_LocalUser.m_Username + "&password=" + global_LocalUser.m_Password);
+                break;
+                    default:
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState === 4 && this.status === 200) {
+                                document.getElementsByClassName("content")[0].innerHTML = this.responseText;
+                            }
+                        };
+
+                        xhttp.open("GET", page, true);
+                        xhttp.send();
+                }
             }
             
         </script>
@@ -272,6 +378,50 @@
                 padding-bottom: 7%;
             }
             
+            .news-item {
+                background-color:#EEEEEE;
+                color:#000000;
+                padding-left:2%;
+                padding-right:2%;
+                border-bottom:20px solid;
+            }
+            
+            .news-item-metadata {
+                width:100%;
+            }
+            
+            .news-item-metadata-li {
+                width:33%;
+                float:left;
+                text-align:center;
+            }
+            
+            .news-item-headline {
+                font-size:40px;
+                font-weight:800;
+            }
+            
+            .news-item-byline {
+                font-size:25px;
+                font-weight:600;
+            }
+            
+            .news-item-person {
+                font-weight:600;
+            }
+            
+            .news-item-organisation {
+                
+            }
+            
+            .news-item-date {
+                
+            }
+            
+            .news-item-body {
+                margin-left:5%;
+                margin-right:15%;
+            }
             
         </style>
     </head>
@@ -291,8 +441,8 @@
                         <div class="button-text">All News</div>
                         <div class="button-line" style="background-color:#000088;"></div>
                     </li>
-                    <li onclick="navClick('allnewscontent');" class="button">
-                        <div class="button-text">All News</div>
+                    <li onclick="navClick('/content/MyNews');" class="button">
+                        <div class="button-text">My News</div>
                         <div class="button-line" style="background-color:#000088;"></div>
                     </li>
                     <li onclick="navClick('registercontent');" class="button" style="float:right;">
