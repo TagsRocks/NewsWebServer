@@ -22,7 +22,8 @@ the JavaScript much more object oriented instead of polluting the global scope w
 The sessions work by simply incrementing a number, in reality this would be something more like a hash of the username/ip/random number
 or something else guaranteed to be unique.
 
-I would also employ the microservice architecture, having the databases on separate servers exposing an API for setting
+I would also employ the microservice architecture, having the databases on separate servers (possibly on a private local network
+or bound via vpn) exposing an API for setting
 and retrieving data. For a large project I'd imagine there would be numerous servers and databases required so the
 architecture of the backend would have more consideration.
 
