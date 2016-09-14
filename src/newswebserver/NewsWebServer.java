@@ -35,6 +35,7 @@ public class NewsWebServer
             server.createContext("/userpagecontent", new UserPageHandler());
             server.createContext("/content/AllNews", new AllNewsRequestHandler());
             server.createContext("/content/MyNews", new MyNewsRequestHandler());
+            server.createContext("/setsubscriptions", new SetSubscriptionsRequestHandler());
             server.setExecutor(Executors.newFixedThreadPool(10)); // creates a default executor
             server.start();
         }
@@ -56,6 +57,73 @@ public class NewsWebServer
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());
                 os.close();
+            }
+            catch(Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+    static class SetSubscriptionsRequestHandler implements HttpHandler 
+    {
+        public void handle(HttpExchange t) throws IOException 
+        {
+            try
+            {
+                System.out.println("SetSubscriptions");
+                InputStreamReader isr =  new InputStreamReader(t.getRequestBody(),"utf-8");
+                BufferedReader br = new BufferedReader(isr);
+
+                int b;
+                StringBuilder buf = new StringBuilder(512);
+                while ((b = br.read()) != -1) {
+                    buf.append((char) b);
+                }
+
+                br.close();
+                isr.close();
+                
+                String buffer = buf.toString();
+                
+                String[] splitParams = buffer.split("&");
+                Map<String, String> params = new HashMap<String, String>();
+                for(String param : splitParams)
+                {
+                    String[] keyValue = param.split("=");
+                    params.put(keyValue[0], keyValue[1]);
+                }
+                
+                String username = params.get("username");
+                String password = params.get("password");
+                
+                ArrayList<String> UserCategories = new ArrayList<String>();
+                for (Map.Entry<String, String> param : params.entrySet())
+                {
+                    System.out.println(param.getKey() + " - " + param.getValue());
+                    if(param.getKey().equals("category"))
+                    {
+                        UserCategories.add(param.getValue());
+                    }
+                }
+                
+                User curUser = db.FindUserByName(username);
+                if(curUser != null && curUser.m_Username.equals(username) && curUser.m_Password.equals(password))
+                {
+                    curUser.m_Subscriptions = UserCategories;
+                    String response = "OK";
+                    t.sendResponseHeaders(200, response.length());
+                    OutputStream os = t.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                }
+                else
+                {
+                    String response = "Bad login";
+                    t.sendResponseHeaders(404, response.length());
+                    OutputStream os = t.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                }
             }
             catch(Exception e)
             {
