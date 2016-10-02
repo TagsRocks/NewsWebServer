@@ -37,9 +37,6 @@ and wreak havoc, so if user posts were implemented you could probably have a lot
 
 ## Would I use any other libraries?
 
-In the response email I sent you I claimed I'd use an Ajax request on the client- ha - I'm so accustomed to using the standard libraries
-we tend to use and didn't even realise that wasn't standard. I'm not even sure where I got it from in some of my projects.
-
 Java EE Edition would've been nice to parse JSON on the server.
 
 Other than those this basic website is easily implemented cleanly and quickly without any libraries really. I'd happily continue
